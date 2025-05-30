@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pen Plotter Drawing App</title>
+    
+    <!-- PWA設定 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pen Plotter">
+    <meta name="theme-color" content="#007AFF">
+    
+    <!-- アイコン設定 -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iNDAiIGZpbGw9IiMwMDdBRkYiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0tMiAxNWwtNS01IDEuNDEtMS40MUw5IDE0LjE3bDcuNTktNy41OUwxOCA4bC04IDl6Ii8+Cjwvc3ZnPgo8L3N2Zz4K">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0iIzAwN0FGRiIvPgo8c3ZnIHg9IjgiIHk9IjgiIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Im0xNS43MSA5LjI5LTYuNDIgNi40MmEuOTk2Ljk5NiAwIDAgMS0xLjQgMGwtMi4xMi0yLjEyYS45OTYuOTk2IDAgMCAxIDAtMS40bDYuNDItNi40MmEuOTk2Ljk5NiAwIDAgMSAxLjQgMGwyLjEyIDIuMTJjLjM5LjM5LjM5IDEuMDIgMCAxLjR6Ii8+Cjwvc3ZnPgo8L3N2Zz4K">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlBlbiBQbG90dGVyIERyYXdpbmcgQXBwIiwKICAic2hvcnRfbmFtZSI6ICJQZW4gUGxvdHRlciIsCiAgImRlc2NyaXB0aW9uIjogIktsaXBwZXIgQVBJ5a++5b+c44Oa44Oz44OX44Ot44OD44K/44Ki44OX44OqIiwKICAic3RhcnRfdXJsIjogIi4vIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjZjBmMGYwIiwKICAidGhlbWVfY29sb3IiOiAiIzAwN0FGRiIsCiAgIm9yaWVudGF0aW9uIjogImFueSIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjNhV1IwYUQwaU1Ua3lJaUJvWldsbmFIUTlJakU1TWlJZ2RtbGxkMEp2ZUQwaU1DQXdJREU1TWlBeE9USWlJR1pwYkd3OUltNXZibVVpSUhodGJHNXpQU0pvZEhSd09pOHZkM2QzTG5jekxtOXlaeTh5TURBd0wzTjJaeUkrUEdKbFkzUWdkMmxrZEdnOUlqRTVNaUlnYUdWcFoyaDBQU0k0T1NJZ2NuZzlJalF3SWlCbWFXeHNQU0lqTURBdFFWVkdJaTgrUEhOdVp5QjRQU0kwT0NJZ2VUMDFJalV4UWlCM2FXUjBhRDBpT0RnaUlHaGxhV2RvZEQwaU9EZ2lJSFpwWlhkQ2IzZzlJakFnTUNBeU5DQXlOQ0lnWm1sc2JEMGlkMmhwZEdVaVBqeHdZWFJvSUdROUlrMHhPU0F5UXpreUlEUWdNVEVnTWpFZ01qVWdOVFV1T0RNeElqTXhJREl6SWlCbWFXeHNQU0lqTURBNFFWWkdJaTgrUEM5emRtYytVQzlGZEdKNGFHSjNaMGhuUWpOTE4ycFJibkJNWjJSTU5tWm1TRzlCTXpaWVNUTnpibWhuVDBjeVFqWlBUWHA0VDAxbmFsSkxSMXBoWW05VWQzbUgzbUUxTjNKRFpIUk9ha3RtTFhORGIwVnJRbkJXTWxCdVozcHRVVUp2WlZOcFpVOUNlbVJuUWt0dU5HODRhbWhzT1UxcE5EbzNSU0k2UEM5c2FXNXJQZ29nSUNBOEwyaGxZV1EvQ2o0PUsiLAogICAgICAic2l6ZXMiOiAiMTkyeDE5MiIsCiAgICAgICJ0eXBlIjogImltYWdlL3N2ZyIKICAgIH0KICBdCn0=">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow-x: hidden;
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .install-banner {
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .install-banner.show {
+            display: block;
+        }
+        
+        .install-banner button {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .app-header {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .app-header h1 {
+            color: #007AFF;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .app-container {
+            display: flex;
+            min-height: calc(100vh - 70px);
+            flex-direction: row;
+            background: rgba(255,255,255,0.9);
+            margin: 10px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .settings-panel {
+            width: 350px;
+            background: linear-gradient(180deg, #f8f9ff 0%, #e8f2ff 100%);
+            border-right: 1px solid #e0e7ff;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%);
+        }
+        
+        .settings-group {
+            background: white;
+            border: none;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,123,255,0.1);
+        }
+        
+        .settings-group h3 {
+            color: #007AFF;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        
+        .settings-group h3::before {
+            content: "●";
+            margin-right: 8px;
+            font-size: 12px;
+        }
+        
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .form-row label {
+            width: 140px;
+            font-size: 14px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-row input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e8f2ff;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: #fafbff;
+        }
+        
+        .form-row input:focus {
+            outline: none;
+            border-color: #007AFF;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+        
+        .form-row button {
+            margin-left: 12px;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #007AFF, #0051D5);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .form-row button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+        }
+        
+        .speed-slider {
+            width: 100%;
+            margin: 15px 0;
+            height: 6px;
+            border-radius: 3px;
+            background: #e8f2ff;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #007AFF, #0051D5);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.3);
+        }
+        
+        .speed-input {
+            width: 100%;
+            text-align: center;
+            margin-top: 10px;
+            font-weight: 600;
+            color: #007AFF;
+        }
+        
+        .control-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .control-button {
+            padding: 18px;
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .control-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .control-button:hover::before {
+            left: 100%;
+        }
+        
+        .control-button.clear { background: linear-gradient(135deg, #FF3B30, #D12B20); }
+        .control-button.undo { background: linear-gradient(135deg, #FF9500, #E07000); }
+        .control-button.save { background: linear-gradient(135deg, #34C759, #28A745); }
+        .control-button.load { background: linear-gradient(135deg, #007AFF, #0051D5); }
+        .control-button.execute { 
+            background: linear-gradient(135deg, #AF52DE, #8B3CB8);
+            grid-column: span 2;
+            font-size: 20px;
+            padding: 24px;
+        }
+        
+        .control-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .control-button:active {
+            transform: translateY(0);
+        }
+        
+        .drawing-canvas {
+            border: 3px solid #007AFF;
+            border-radius: 12px;
+            background: white;
+            cursor: crosshair;
+            touch-action: none;
+            box-shadow: 0 8px 30px rgba(0,123,255,0.2);
+            transition: all 0.3s;
+        }
+        
+        .drawing-canvas:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0,123,255,0.3);
+        }
+        
+        .canvas-title {
+            background: linear-gradient(135deg, #007AFF, #0051D5);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px 12px 0 0;
+            font-weight: 700;
+            font-size: 18px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,123,255,0.2);
+        }
+        
+        .status-bar {
+            margin-top: 15px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #f8f9ff, #e8f2ff);
+            border-radius: 25px;
+            border: 1px solid #e0e7ff;
+            font-size: 14px;
+            color: #555;
+            text-align: center;
+            font-weight: 500;
+            min-width: 300px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            min-width: 350px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border: 1px solid rgba(0,123,255,0.1);
+        }
+        
+        .modal-content h3 {
+            color: #007AFF;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .modal-buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .modal-button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+        
+        .modal-button.ok {
+            background: linear-gradient(135deg, #007AFF, #0051D5);
+            color: white;
+        }
+        
+        .modal-button.cancel {
+            background: linear-gradient(135deg, #FF3B30, #D12B20);
+            color: white;
+        }
+        
+        .modal-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .progress-modal .modal-content {
+            width: 450px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            margin: 25px 0;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #007AFF, #0051D5);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+                margin: 5px;
+            }
+            
+            .settings-panel {
+                width: 100%;
+                order: 2;
+                max-height: 400px;
+                padding: 15px;
+            }
+            
+            .canvas-container {
+                order: 1;
+                padding: 15px;
+            }
+            
+            .control-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-button.execute {
+                grid-column: span 1;
+            }
+            
+            .settings-group {
+                margin-bottom: 15px;
+                padding: 15px;
+            }
+            
+            .drawing-canvas {
+                max-width: 100%;
+                height: auto;
+            }
+        }
+        
+        /* PWAスタイル調整 */
+        @media (display-mode: standalone) {
+            .install-banner {
+                display: none !important;
+            }
+            
+            .app-header {
+                padding-top: env(safe-area-inset-top, 20px);
+                background: linear-gradient(135deg, #007AFF, #0051D5);
+                color: white;
+            }
+            
+            .app-header h1 {
+                color: white;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="install-banner" id="installBanner">
+        📱 このアプリをホーム画面に追加できます
+        <button onclick="showInstallInstructions()">インストール方法</button>
+    </div>
+    
+    <div class="app-header">
+        <h1>🎨 Pen Plotter Drawing App</h1>
+    </div>
+    
+    <div class="app-container">
+        <div class="settings-panel">
+            <div class="settings-group">
+                <h3>🔗 Klipper API設定</h3>
+                <div class="form-row">
+                    <label>ホスト:</label>
+                    <input type="text" id="klipperHost" value="192.168.1.208">
+                    <button onclick="testConnection()">テスト</button>
+                </div>
+                <div class="form-row">
+                    <label>ポート:</label>
+                    <input type="text" id="klipperPort" value="80">
+                </div>
+            </div>
+            
+            <div class="settings-group">
+                <h3>📐 プロッタ設定</h3>
+                <div class="form-row">
+                    <label>ベッドサイズ X:</label>
+                    <input type="number" id="bedSizeX" value="100" step="0.1">
+                </div>
+                <div class="form-row">
+                    <label>ベッドサイズ Y:</label>
+                    <input type="number" id="bedSizeY" value="148" step="0.1">
+                </div>
+            </div>
+            
+            <div class="settings-group">
+                <h3>⚡ スピード設定</h3>
+                <input type="range" id="speedSlider" class="speed-slider" 
+                       min="6000" max="24000" value="12000" step="3000">
+                <input type="number" id="speedInput" class="speed-input" 
+                       value="12000" min="6000" max="24000" step="3000">
+                <div style="text-align: center; margin-top: 5px; font-size: 12px; color: #666;">
+                    mm/分
+                </div>
+            </div>
+            
+            <div class="settings-group">
+                <h3>🎮 コントロール</h3>
+                <div class="control-buttons">
+                    <button class="control-button clear" onclick="clearCanvas()">🗑️ けす</button>
+                    <button class="control-button undo" onclick="undoLastStroke()">↶ もどる</button>
+                    <button class="control-button save" onclick="saveGcode()">💾 ほぞん</button>
+                    <button class="control-button load" onclick="loadGcode()">📁 よみこみ</button>
+                    <button class="control-button execute" onclick="executePlot()">🚀 しゅつりょく</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="canvas-container">
+            <div class="canvas-title">✏️ 描画エリア</div>
+            <canvas id="drawingCanvas" class="drawing-canvas" width="500" height="740"></canvas>
+            <div class="status-bar" id="statusBar">📝 描画を開始してください</div>
+        </div>
+    </div>
+    
+    <!-- インストール説明モーダル -->
+    <div id="installModal" class="modal">
+        <div class="modal-content">
+            <h3>📱 iPadにインストール</h3>
+            <div style="text-align: left; margin: 20px 0;">
+                <p><strong>1. Safariで以下の手順:</strong></p>
+                <p>• 画面下部の「共有」ボタン (📤) をタップ</p>
+                <p>• 「ホーム画面に追加」を選択</p>
+                <p>• アプリ名を確認して「追加」をタップ</p>
+                <p><br><strong>2. ホーム画面からアプリ起動</strong></p>
+                <p>• フルスクリーンで動作します</p>
+                <p>• オフラインでも描画可能</p>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-button ok" onclick="closeInstallModal()">わかった</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- その他のモーダル（前回と同じ） -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h3>🎯 プロット確認</h3>
+            <p>プロットを開始しますか？</p>
+            <div class="modal-buttons">
+                <button class="modal-button ok" onclick="confirmPlot(true)">OK</button>
+                <button class="modal-button cancel" onclick="confirmPlot(false)">ちゅうし</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="progressModal" class="modal progress-modal">
+        <div class="modal-content">
+            <h3>⚙️ プロット実行中</h3>
+            <p id="progressText">プロットを実行中...</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+    </div>
+    
+    <input type="file" id="fileInput" accept=".gcode" style="display: none;">
+    
+    <script>
+        // 前回のJavaScriptコードをここに（同じ内容）
+        let canvas, ctx;
+        let drawingPaths = [];
+        let currentPath = [];
+        let isDrawing = false;
+        let lastX = 0, lastY = 0;
+        let gcodeLines = [];
+        
+        window.onload = function() {
+            canvas = document.getElementById('drawingCanvas');
+            ctx = canvas.getContext('2d');
+            
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = '#000000';
+            
+            setupEventListeners();
+            syncSpeedControls();
+            updateStatus('📝 描画を開始してください');
+            
+            // PWA関連
+            checkInstallPrompt();
+        };
+        
+        function setupEventListeners() {
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', endDraw);
+            canvas.addEventListener('mouseout', endDraw);
+            
+            canvas.addEventListener('touchstart', handleTouch);
+            canvas.addEventListener('touchmove', handleTouch);
+            canvas.addEventListener('touchend', handleTouchEnd);
+            
+            document.getElementById('fileInput').addEventListener('change', handleFileLoad);
+            
+            document.getElementById('speedSlider').addEventListener('input', function() {
+                document.getElementById('speedInput').value = this.value;
+            });
+            
