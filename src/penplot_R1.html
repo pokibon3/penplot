@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ペンプロッター描画アプリ - iPad版</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+            touch-action: none;
+        }
+        
+        .app-container {
+            display: flex;
+            height: 820px;
+            width: 1080px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .settings-panel {
+            width: 280px;
+            background: rgba(248, 250, 252, 0.9);
+            padding: 16px;
+            border-right: 1px solid rgba(226, 232, 240, 0.8);
+            overflow-y: auto;
+        }
+        
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: linear-gradient(45deg, #f0f9ff, #e0f2fe);
+        }
+        
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title::before {
+            content: '';
+            width: 3px;
+            height: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+            margin-right: 6px;
+        }
+        
+        .input-group {
+            margin-bottom: 8px;
+        }
+        
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: #475569;
+            margin-bottom: 3px;
+            font-weight: 500;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        
+        .speed-slider {
+            width: 100%;
+            margin: 6px 0;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 4px;
+            border-radius: 2px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            outline: none;
+        }
+        
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            border: 2px solid #667eea;
+        }
+        
+        .button {
+            width: calc(50% - 3px);
+            padding: 10px 6px;
+            margin: 2px 1px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        
+        .button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .button:hover::before {
+            left: 100%;
+        }
+        
+        .button-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .button-secondary {
+            background: linear-gradient(135deg, #f472b6, #ec4899);
+            color: white;
+        }
+        
+        .button-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .button-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+        
+        .button-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        
+        .button:active {
+            transform: translateY(1px);
+        }
+        
+        .button-full {
+            width: 100%;
+            margin: 4px 0;
+        }
+        
+        .drawing-canvas {
+            border: 3px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            cursor: crosshair;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            touch-action: none;
+        }
+        
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 6px;
+            font-size: 12px;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s;
+        }
+        
+        .status.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .status.success {
+            background: rgba(16, 185, 129, 0.9);
+        }
+        
+        .status.error {
+            background: rgba(239, 68, 68, 0.9);
+        }
+        
+        .status.warning {
+            background: rgba(245, 158, 11, 0.9);
+        }
+        
+        .connection-status {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-left: 6px;
+            background: #ef4444;
+        }
+        
+        .connection-status.connected {
+            background: #10b981;
+        }
+        
+        .progress-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        
+        .progress-dialog {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 16px 64px rgba(0, 0, 0, 0.2);
+            min-width: 250px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="settings-panel">
+            <div class="section">
+                <div class="section-title">Klipper API設定</div>
+                <div class="input-group">
+                    <label>ホスト</label>
+                    <input type="text" id="klipperHost" value="192.168.1.208">
+                </div>
+                <div class="input-group">
+                    <label>ポート</label>
+                    <input type="text" id="klipperPort" value="80">
+                </div>
+                <button class="button button-primary button-full" onclick="testConnection()">
+                    接続テスト <span class="connection-status" id="connectionStatus"></span>
+                </button>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">スピード設定</div>
+                <div class="input-group">
+                    <label>スピード: <span id="speedValue">12000</span> mm/分</label>
+                    <input type="range" class="speed-slider" id="speedSlider" 
+                           min="6000" max="24000" step="3000" value="12000">
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">コントロール</div>
+                <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+                    <button class="button button-danger" onclick="clearCanvas()">けす</button>
+                    <button class="button button-warning" onclick="undoLastStroke()">もどる</button>
+                    <button class="button button-secondary" onclick="saveGCode()">ほぞん</button>
+                    <button class="button button-secondary" onclick="loadGCode()">よみだし</button>
+                    <button class="button button-success button-full" onclick="executePlot()">しゅつりょく</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="canvas-area">
+            <canvas id="drawingCanvas" class="drawing-canvas" width="740" height="740"></canvas>
+        </div>
+    </div>
+    
+    <div class="status" id="statusMessage"></div>
+    
+    <div class="progress-overlay" id="progressOverlay">
+        <div class="progress-dialog">
+            <h3>プロット実行中...</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p id="progressText">準備中...</p>
+        </div>
+    </div>
+    
+    <input type="file" id="fileInput" accept=".gcode" style="display: none;">
+
+    <script>
+        // アプリケーションの状態
+        let drawingPaths = [];
+        let currentPath = [];
+        let isDrawing = false;
+        let gcodeLines = [];
+        
+        // キャンバス設定
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const canvasWidth = 740;
+        const canvasHeight = 740;
+        
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            setupCanvas();
+            setupEventListeners();
+        });
+        
+        function setupCanvas() {
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#000000';
+        }
+        
+        function setupEventListeners() {
+            // スピードスライダー
+            const speedSlider = document.getElementById('speedSlider');
+            const speedValue = document.getElementById('speedValue');
+            
+            speedSlider.addEventListener('input', function() {
+                speedValue.textContent = this.value;
+            });
+            
+            // キャンバスイベント（マウス）
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', endDraw);
+            canvas.addEventListener('mouseleave', endDraw);
+            
+            // キャンバスイベント（タッチ）
+            canvas.addEventListener('touchstart', handleTouch, { passive: false });
+            canvas.addEventListener('touchmove', handleTouch, { passive: false });
+            canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+            
+            // ファイル入力
+            document.getElementById('fileInput').addEventListener('change', handleFileLoad);
+        }
+        
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            if (e.type === 'touchstart') {
+                startDraw({ offsetX: x, offsetY: y });
+            } else if (e.type === 'touchmove') {
+                draw({ offsetX: x, offsetY: y });
+            }
+        }
+        
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            endDraw();
+        }
+        
+        function startDraw(event) {
+            const x = Math.max(0, Math.min(event.offsetX, canvasWidth));
+            const y = Math.max(0, Math.min(event.offsetY, canvasHeight));
+            
+            isDrawing = true;
+            currentPath = [{x: x, y: y}];
+            
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+        
+        function draw(event) {
+            if (!isDrawing) return;
+            
+            const x = Math.max(0, Math.min(event.offsetX, canvasWidth));
+            const y = Math.max(0, Math.min(event.offsetY, canvasHeight));
+            
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            
+            currentPath.push({x: x, y: y});
+        }
+        
+        function endDraw() {
+            if (isDrawing) {
+                isDrawing = false;
+                if (currentPath.length > 1) {
+                    drawingPaths.push([...currentPath]);
+                }
+                currentPath = [];
+            }
+        }
+        
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            drawingPaths = [];
+            gcodeLines = [];
+            showStatus('キャンバスをクリアしました', 'success');
+        }
+        
+        function undoLastStroke() {
+            if (drawingPaths.length > 0) {
+                drawingPaths.pop();
+                redrawCanvas();
+                showStatus('最後のストロークを削除しました', 'success');
+            }
+        }
+        
+        function redrawCanvas() {
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            
+            for (const path of drawingPaths) {
+                if (path.length < 2) continue;
+                
+                ctx.beginPath();
+                ctx.moveTo(path[0].x, path[0].y);
+                
+                for (let i = 1; i < path.length; i++) {
+                    ctx.lineTo(path[i].x, path[i].y);
+                }
+                ctx.stroke();
+            }
+        }
+        
+        function canvasToPlotterCoords(canvasX, canvasY) {
+            // 100mm x 100mmのベッドサイズを想定
+            const bedSize = 100;
+            
+            const plotterX = (canvasX / canvasWidth) * bedSize;
+            const plotterY = ((canvasHeight - canvasY) / canvasHeight) * bedSize;
+            
+            return {
+                x: Math.max(0, Math.min(plotterX, bedSize)),
+                y: Math.max(0, Math.min(plotterY, bedSize))
+            };
+        }
+        
+        function plotterToCanvasCoords(plotterX, plotterY) {
+            // 100mm x 100mmのベッドサイズを想定
+            const bedSize = 100;
+            
+            const canvasX = (plotterX / bedSize) * canvasWidth;
+            const canvasY = canvasHeight - (plotterY / bedSize) * canvasHeight;
+            
+            return { x: canvasX, y: canvasY };
+        }
+        
+        function generateGCode() {
+            if (drawingPaths.length === 0) {
+                showStatus('描画データがありません', 'warning');
+                return false;
+            }
+            
+            gcodeLines = [];
+            const speed = document.getElementById('speedSlider').value;
+            
+            // GCodeヘッダー
+            gcodeLines.push(
+                '; Generated by Pen Plotter App - iPad版',
+                '; ' + new Date().toLocaleString(),
+                'G28 ; Home all axes',
+                'G90 ; Absolute positioning',
+                'G21 ; Units in millimeters',
+                'M5 ; Pen up',
+                ''
+            );
+            
+            // 描画パスを処理
+            for (const path of drawingPaths) {
+                if (path.length === 0) continue;
+                
+                const firstPoint = canvasToPlotterCoords(path[0].x, path[0].y);
+                gcodeLines.push(`G1 X${firstPoint.x.toFixed(3)} Y${firstPoint.y.toFixed(3)} F${speed} ; Move to start`);
+                gcodeLines.push('M3 ; Pen down');
+                
+                for (let i = 1; i < path.length; i++) {
+                    const point = canvasToPlotterCoords(path[i].x, path[i].y);
+                    gcodeLines.push(`G1 X${point.x.toFixed(3)} Y${point.y.toFixed(3)} F${speed}`);
+                }
+                
+                gcodeLines.push('M5 ; Pen up');
+                gcodeLines.push('');
+            }
+            
+            // GCodeフッター
+            gcodeLines.push(
+                'M5 ; Pen up',
+                'M02 ; End of program'
+            );
+            
+            return true;
+        }
+        
+        function saveGCode() {
+            if (!generateGCode()) return;
+            
+            const content = gcodeLines.join('\n');
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+            const filename = `plot_${timestamp}.gcode`;
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus(`GCodeを保存しました (${gcodeLines.length}行)`, 'success');
+        }
+        
+        function loadGCode() {
+            document.getElementById('fileInput').click();
+        }
+        
+        function handleFileLoad(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    parseGCodeToPaths(content.split('\n'));
+                    redrawCanvas();
+                    showStatus(`GCodeをロードしました (${drawingPaths.length}パス)`, 'success');
+                } catch (error) {
+                    showStatus('GCodeの読み込みに失敗しました', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        function parseGCodeToPaths(lines) {
+            drawingPaths = [];
+            let currentPath = [];
+            let penDown = false;
+            let currentX = 0, currentY = 0;
+            
+            for (const line of lines) {
+                const cleanLine = line.trim().toUpperCase();
+                
+                if (!cleanLine || cleanLine.startsWith(';')) continue;
+                
+                if (cleanLine.includes('M3') || cleanLine.includes('M03')) {
+                    if (!penDown) {
+                        penDown = true;
+                        if (currentPath.length > 0) {
+                            drawingPaths.push(currentPath);
+                        }
+                        currentPath = [];
+                        const canvasCoords = plotterToCanvasCoords(currentX, currentY);
+                        currentPath.push({
+                            x: Math.max(0, Math.min(canvasCoords.x, canvasWidth)),
+                            y: Math.max(0, Math.min(canvasCoords.y, canvasHeight))
+                        });
+                    }
+                } else if (cleanLine.includes('M5') || cleanLine.includes('M05')) {
+                    if (penDown) {
+                        penDown = false;
+                        if (currentPath.length > 0) {
+                            drawingPaths.push(currentPath);
+                            currentPath = [];
+                        }
+                    }
+                } else if (cleanLine.startsWith('G0') || cleanLine.startsWith('G1') || 
+                          cleanLine.startsWith('G00') || cleanLine.startsWith('G01')) {
+                    const coords = parseCoordinates(cleanLine);
+                    
+                    if (coords.x !== null) currentX = coords.x;
+                    if (coords.y !== null) currentY = coords.y;
+                    
+                    if (penDown && (coords.x !== null || coords.y !== null)) {
+                        const canvasCoords = plotterToCanvasCoords(currentX, currentY);
+                        currentPath.push({
+                            x: Math.max(0, Math.min(canvasCoords.x, canvasWidth)),
+                            y: Math.max(0, Math.min(canvasCoords.y, canvasHeight))
+                        });
+                    }
+                }
+            }
+            
+            if (currentPath.length > 0) {
+                drawingPaths.push(currentPath);
+            }
+        }
+        
+        function parseCoordinates(line) {
+            const xMatch = line.match(/X([-+]?\d*\.?\d+)/);
+            const yMatch = line.match(/Y([-+]?\d*\.?\d+)/);
+            
+            return {
+                x: xMatch ? parseFloat(xMatch[1]) : null,
+                y: yMatch ? parseFloat(yMatch[1]) : null
+            };
+        }
+        
+        async function testConnection() {
+            const host = document.getElementById('klipperHost').value;
+            const port = document.getElementById('klipperPort').value;
+            const statusElement = document.getElementById('connectionStatus');
+            
+            try {
+                const response = await fetch(`http://${host}:${port}/printer/info`, {
+                    method: 'GET'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    statusElement.classList.add('connected');
+                    showStatus(`Klipperに接続しました`, 'success');
+                } else {
+                    statusElement.classList.remove('connected');
+                    showStatus(`接続エラー: HTTP ${response.status}`, 'error');
+                }
+            } catch (error) {
+                statusElement.classList.remove('connected');
+                showStatus(`接続に失敗しました`, 'error');
+            }
+        }
+        
+        async function executePlot() {
+            if (!generateGCode()) return;
+            
+            if (!confirm('プロットを開始しますか？')) return;
+            
+            const progressOverlay = document.getElementById('progressOverlay');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            
+            progressOverlay.style.display = 'flex';
+            
+            try {
+                progressText.textContent = 'GCodeをアップロード中...';
+                progressFill.style.width = '25%';
+                
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '').slice(0, -5);
+                const filename = `plot_${timestamp}.gcode`;
+                const content = gcodeLines.join('\n');
+                
+                const uploadSuccess = await uploadGCodeToSD(filename, content);
+                if (!uploadSuccess) {
+                    throw new Error('GCodeのアップロードに失敗しました');
+                }
+                
+                progressFill.style.width = '75%';
+                progressText.textContent = '印刷を開始中...';
+                
+                const printSuccess = await startPrintJob(filename);
+                if (!printSuccess) {
+                    throw new Error('印刷の開始に失敗しました');
+                }
+                
+                progressFill.style.width = '100%';
+                progressText.textContent = '完了！';
+                
+                setTimeout(() => {
+                    progressOverlay.style.display = 'none';
+                    showStatus('プロットを開始しました！', 'success');
+                }, 1000);
+                
+            } catch (error) {
+                progressOverlay.style.display = 'none';
+                showStatus(`エラー: ${error.message}`, 'error');
+            }
+        }
+        
+        async function uploadGCodeToSD(filename, content) {
+            const host = document.getElementById('klipperHost').value;
+            const port = document.getElementById('klipperPort').value;
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', new Blob([content], { type: 'text/plain' }), filename);
+                formData.append('root', 'gcodes');
+                
+                const response = await fetch(`http://${host}:${port}/server/files/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                return response.status === 201;
+            } catch (error) {
+                return false;
+            }
+        }
+        
+        async function startPrintJob(filename) {
+            const host = document.getElementById('klipperHost').value;
+            const port = document.getElementById('klipperPort').value;
+            
+            try {
+                const response = await fetch(`http://${host}:${port}/printer/print/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ filename: filename })
+                });
+                
+                return response.ok;
+            } catch (error) {
+                return false;
+            }
+        }
+        
+        function showStatus(message, type = 'info') {
+            const statusElement = document.getElementById('statusMessage');
+            statusElement.textContent = message;
+            statusElement.className = `status show ${type}`;
+            
+            setTimeout(() => {
+                statusElement.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
