@@ -21,8 +21,8 @@
         
         .app-container {
             display: flex;
-            height: 760px;
-            width: 1080px;
+            height: 100vh;
+            width: 100vw;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -32,17 +32,17 @@
         }
         
         .settings-panel {
-            flex: 0 0 400px;
-            width: 400px !important;
+            flex: 0 0 160px;
+            width: 160px !important;
             background: rgba(248, 250, 252, 0.9);
-            padding: 16px;
+            padding: 12px;
             border-right: 1px solid rgba(226, 232, 240, 0.8);
             overflow-y: auto;
         }
         
         .canvas-area {
-            width: 480px !important;
-            height: 720px !important;
+            width: 560px !important;
+            height: 840px !important;
             flex: 0 0 auto !important;
             display: flex;
             flex-direction: column;
@@ -54,15 +54,15 @@
         
         .section {
             background: white;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 12px;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             border: 1px solid rgba(226, 232, 240, 0.5);
         }
         
         .section-title {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 600;
             color: #1e293b;
             margin-bottom: 8px;
@@ -73,30 +73,30 @@
         .section-title::before {
             content: '';
             width: 3px;
-            height: 12px;
+            height: 10px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 2px;
-            margin-right: 6px;
+            margin-right: 4px;
         }
         
         .input-group {
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         
         .input-group label {
             display: block;
-            font-size: 12px;
+            font-size: 10px;
             color: #475569;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
             font-weight: 500;
         }
         
         .input-group input {
             width: 100%;
-            padding: 6px 8px;
+            padding: 4px 6px;
             border: 2px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 12px;
+            border-radius: 4px;
+            font-size: 10px;
             transition: all 0.2s;
         }
         
@@ -108,10 +108,10 @@
         
         .speed-slider {
             width: 100%;
-            margin: 6px 0;
+            margin: 4px 0;
             -webkit-appearance: none;
             appearance: none;
-            height: 4px;
+            height: 3px;
             border-radius: 2px;
             background: linear-gradient(to right, #667eea, #764ba2);
             outline: none;
@@ -120,8 +120,8 @@
         .speed-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 16px;
-            height: 16px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             background: white;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
@@ -130,18 +130,21 @@
         }
         
         .button {
-            width: calc(50% - 3px);
-            padding: 10px 6px;
-            margin: 2px 1px;
+            width: 100%;
+            padding: 32px 6px;
+            margin: 3px 0;
             border: none;
-            border-radius: 6px;
-            font-size: 12px;
+            border-radius: 5px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
             overflow: hidden;
-            display: inline-block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
         }
         
         .button::before {
@@ -184,13 +187,19 @@
             color: white;
         }
         
+        .button-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+        
         .button:active {
             transform: translateY(1px);
         }
         
-        .button-full {
-            width: 100%;
-            margin: 4px 0;
+        .button-icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
         }
         
         .drawing-canvas {
@@ -291,18 +300,45 @@
     <div class="app-container">
         <div class="settings-panel">
             <div class="section">
-                <div class="section-title">Klipper API設定</div>
-                <div class="input-group">
-                    <label>ホスト</label>
-                    <input type="text" id="klipperHost" value="pen-plotter.local">
-                </div>
-                <div class="input-group">
-                    <label>ポート</label>
-                    <input type="text" id="klipperPort" value="80">
-                </div>
-                <button class="button button-primary button-full" onclick="testConnection()">
-                    接続テスト <span class="connection-status" id="connectionStatus"></span>
+                <div class="section-title">コントロール</div>
+                <button class="button button-warning" onclick="undoLastStroke()">
+                    <svg class="button-icon" viewBox="0 0 24 24">
+                        <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
+                    </svg>
+                    やりなおし
                 </button>
+                <button class="button button-secondary" onclick="saveGCode()">
+                    <svg class="button-icon" viewBox="0 0 24 24">
+                        <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+                    </svg>
+                    ほぞん
+                </button>
+                <button class="button button-secondary" onclick="loadGCode()">
+                    <svg class="button-icon" viewBox="0 0 24 24">
+                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                    </svg>
+                    よみだし
+                </button>
+                <button class="button button-success" onclick="executePlot()">
+                    <svg class="button-icon" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    ぷろっと
+                </button>
+                <button class="button button-danger" onclick="clearCanvas()">
+                    <svg class="button-icon" viewBox="0 0 24 24">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                    </svg>
+                    けす
+                </button>
+                <!--
+                <button class="button button-info" onclick="endSession()">
+                    <svg class="button-icon" viewBox="0 0 24 24">
+                        <path d="M16 17v-3H9v-4h7V7l5 5-5 5M14 2a2 2 0 0 1 2 2v2h-2V4H4v16h10v-2h2v2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10Z"/>
+                    </svg>
+                    おわり
+                </button>
+                -->
             </div>
             
             <div class="section">
@@ -315,19 +351,24 @@
             </div>
             
             <div class="section">
-                <div class="section-title">コントロール</div>
-                <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
-                    <button class="button button-danger" onclick="clearCanvas()">けす</button>
-                    <button class="button button-warning" onclick="undoLastStroke()">もどる</button>
-                    <button class="button button-secondary" onclick="saveGCode()">ほぞん</button>
-                    <button class="button button-secondary" onclick="loadGCode()">よみだし</button>
-                    <button class="button button-success button-full" onclick="executePlot()">しゅつりょく</button>
+                <div class="section-title">Klipper設定</div>
+                <div class="input-group">
+                    <label>ホスト</label>
+                    <input type="text" id="klipperHost" value="pen-plotter.local">
                 </div>
+                <div class="input-group">
+                    <label>ポート</label>
+                    <input type="text" id="klipperPort" value="80">
+                </div>
+                <button class="button button-primary" onclick="testConnection()">
+                    <span class="connection-status" id="connectionStatus"></span>
+                    接続テスト
+                </button>
             </div>
         </div>
         
         <div class="canvas-area">
-            <canvas id="drawingCanvas" class="drawing-canvas" width="480" height="720"></canvas>
+            <canvas id="drawingCanvas" class="drawing-canvas" width="560" height="840"></canvas>
         </div>
     </div>
     
@@ -355,8 +396,8 @@
         // キャンバス設定
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
-        const canvasWidth = 500;
-        const canvasHeight = 750;
+        const canvasWidth = 560;
+        const canvasHeight = 840;
         
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
@@ -459,6 +500,13 @@
                 drawingPaths.pop();
                 redrawCanvas();
                 showStatus('最後のストロークを削除しました', 'success');
+            }
+        }
+        
+        function endSession() {
+            if (confirm('セッションを終了しますか？未保存のデータは失われます。')) {
+                clearCanvas();
+                showStatus('セッションが終了しました', 'success');
             }
         }
         
